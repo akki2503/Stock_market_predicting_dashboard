@@ -13,9 +13,7 @@ import pandas as pd
 
 
 # In[5]:
-
-
-df = pd.read_csv('/home/akshat/Documents/Stock Price Dashboard/INFY.NS.csv', index_col=0, parse_dates=True)
+df = pd.read_csv('INFY.NS.csv', index_col=0, parse_dates=True)
 
 import plotly.express as px
 
