@@ -13,6 +13,7 @@ import pandas as pd
 
 from tensorflow import keras
 from sklearn.preprocessing import MinMaxScaler
+import matplotlib.pyplot as plt
 
 # In[5]:
 def read_stock_data(stock_name):
@@ -27,7 +28,7 @@ def process_data_for_prediction(raw_data, model):
         raw_data[var_name] = raw_data['Close'].shift(i)
     raw_data = raw_data.dropna()
 
-    training_set = raw_data.values
+    training_set = raw_data.values[-100:]
     training_set.shape
 
     sc_x = MinMaxScaler(feature_range = (0, 1))
@@ -35,22 +36,25 @@ def process_data_for_prediction(raw_data, model):
     sc_y = MinMaxScaler(feature_range = (0, 1))
     training_set_y_scaled = sc_y.fit_transform(training_set[:,-1:])
 
-    train_sub_x = training_set_x_scaled[0:4500]
-    train_sub_y = training_set_y_scaled[0:4500]
-    test_sub_x = training_set_x_scaled[4500:]
-    test_sub_y = training_set_y_scaled[4500:]
+    train_sub_x = training_set_x_scaled[:]
+    train_sub_y = training_set_y_scaled[:]
+    # test_sub_x = training_set_x_scaled[4500:]
+    # test_sub_y = training_set_y_scaled[4500:]
 
     x_train_cnn = train_sub_x.reshape(train_sub_x.shape[0],train_sub_x.shape[1],1)
-    y_train_cnn = train_sub_y
 
-    x_test_cnn = test_sub_x.reshape(test_sub_x.shape[0],test_sub_x.shape[1],1)
-    y_test_cnn = test_sub_y
+    # x_test_cnn = test_sub_x.reshape(test_sub_x.shape[0],test_sub_x.shape[1],1)
+    # y_test_cnn = test_sub_y
 
-    y_pred = model.predict(x_test_cnn)
+    y_pred = model.predict(x_train_cnn)
     y_pred = sc_y.inverse_transform(y_pred)
 
     return y_pred
 
+# def plot(y_pred, raw_data):
+#     df2 = pd.DataFrame(y_pred, columns=['events'])
+#     fig = go.figure(px.line(df2, x=df2.index, y=df2['events']))
+#     return fig
 
 def load_model():
     global model
@@ -89,13 +93,12 @@ def update_graph(Stock):
     # else:
     #     df_plot = df.copy()
     df_plot = read_stock_data(Stock)
-    plot_values = df_plot['Close']
+    # plot_values = df_plot['Close']
 
-    precessed_data = process_data_for_prediction(df_plot, model)
+    preprocessed_data = process_data_for_prediction(df_plot, model)
+    df2 = pd.DataFrame(preprocessed_data, columns=['events'])
+    fig = go.Scatter(x=df2.index, y=df2['events'].values)
     
-    fig = go.Scatter(x=df_plot.index, y=plot_values.values)
-    # fig = go.figure(px.line(df_plot, x=df_plot.index, y=df[Stock]))
-
     return {
         'data': [fig],
         'layout':
