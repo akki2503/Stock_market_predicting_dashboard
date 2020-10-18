@@ -1,0 +1,18 @@
+<div class='login>
+            <h1> foreast 5 day prices </h1>
+            <h3> enter values as per indicated </h3>
+            
+            <form action= '{{ url_for('predict')}}' method='post'>
+                                              <input type='text' name='open' placeholder='open' required='required' />
+                                              <input type='text' name='high' placeholder='high' required='required' />   
+                                              <input type='text' name='low' placeholder='low' required='required' />
+                                              <input type='text' name='close' placeholder='close' required='required' />
+                                              <input type='text' name='shfif 1' placeholder='shift 1' required='required' /> 
+                                               
+                                                   <button type='submit' class='btn'> Predict </button>
+                                                                                    </form>
+            <br>
+            <br>
+           {{ prediction_text}}
+           
+</div>
