@@ -59,6 +59,7 @@ def process_data_for_prediction(raw_data, model):
 def load_model():
     global model
     model = keras.models.load_model('cnn_model')
+    return model
 
 import plotly.express as px
 
@@ -94,10 +95,11 @@ def update_graph(Stock):
     #     df_plot = df.copy()
     df_plot = read_stock_data(Stock)
     # plot_values = df_plot['Close']
-
+    model = load_model()
     preprocessed_data = process_data_for_prediction(df_plot, model)
-    df2 = pd.DataFrame(preprocessed_data, columns=['events'])
-    fig = go.Scatter(x=df2.index, y=df2['events'].values)
+    df2 = pd.DataFrame(preprocessed_data[:,4], columns=['events'])
+    
+    fig = go.Scatter(x=df2.index, y=df2['events'])
     
     return {
         'data': [fig],
@@ -105,5 +107,5 @@ def update_graph(Stock):
             go.Layout(title='Stock Close Price')
     }
 if __name__ == '__main__':
-    load_model()
+    model = load_model()
     app.run_server(debug=True)
