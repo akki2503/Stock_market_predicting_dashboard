@@ -82,6 +82,11 @@ app.layout = html.Div([
         style={'width': '25%',
                'display': 'inline-block'}),
     dcc.Graph(id='funnel-graph'),
+    dcc.Textarea(
+        id='textarea-example',
+        value='Textarea content initialized\nwith multiple lines of text',
+        style={'width': '50%', 'height': 100},
+    ),
 ])
 
 
