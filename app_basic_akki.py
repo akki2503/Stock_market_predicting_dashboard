@@ -1,12 +1,3 @@
-<<<<<<< HEAD:app_basic_akki.py
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[10]:
-
-import numpy as np
-=======
->>>>>>> b9cdd72ba5f00a7cd85f6b34ec7a7f424b759b2c:app_basic.py
 import pandas as pd
 import dash
 import dash_core_components as dcc
@@ -14,171 +5,142 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 import pandas as pd
+import pandas_datareader as pdr
 
 from tensorflow import keras
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 
-<<<<<<< HEAD:app_basic_akki.py
 from lstm_model_py import forecast_lstm, forecast
+import yfinance as yf
+from datetime import date, datetime, timedelta
+
+import dash_table
+import pandas as pd
+import plotly.express as px
 
 ## function to read close prices of previous 5 days
-=======
-
->>>>>>> b9cdd72ba5f00a7cd85f6b34ec7a7f424b759b2c:app_basic.py
-def read_stock_data(stock_name):
-    stock_data = pd.read_csv(stock_name+'.csv')
-    return stock_data
+def read_stock_data(stock_name, start_date, end_date):
+    stock_data = pdr.get_data_yahoo(stock_name, start_date, end_date)
+    data_close = stock_data['Close'].values
+    return data_close
 
 ## predictions using prev data
 def lstm_prediction(prev_data, lstm_model):
-    x_train_l = prev_data.reshape(1,1,prev_data.shape[0])
-    x_train_l = np.asarray(x_train_l).astype(np.float32)
-
-    forecasts = list()
-    for i in range(len(x_train_l)):
-        x= x_train_l[i,:]
-        fore = forecast_lstm(lstm_model, x , 1)
-        forecasts = np.append(forecasts, fore)
-
-<<<<<<< HEAD:app_basic_akki.py
+    forecasts = forecast_lstm(prev_data, lstm_model)
     return forecasts
 
-## load lstm model
-=======
-    y_pred = model.predict(x_train_cnn)
-    y_pred = sc_y.inverse_transform(y_pred)
-
-    return y_pred
-
->>>>>>> b9cdd72ba5f00a7cd85f6b34ec7a7f424b759b2c:app_basic.py
 def load_model():
     global model
     model = keras.models.load_model('lstm_model')
     return model
 
 
-
-import plotly.express as px
-
-<<<<<<< HEAD:app_basic_akki.py
-mgr_options = ['Infosys']
-=======
-mgr_options = ['Infosys'] # contains name used into the prediction model
-mgr_dic = {'Infosys': 'infosys-ltd'} # mapping with the webscrapping title
->>>>>>> b9cdd72ba5f00a7cd85f6b34ec7a7f424b759b2c:app_basic.py
-
-import dash_table
-import pandas as pd
-
-################################### Web scrapping ##################################
-
-from urllib.request import Request, urlopen
-from bs4 import BeautifulSoup as soup
-url = "https://trendlyne.com/equity/630/INFY/{0}/".format(mgr_dic[mgr_options[0]])
-req = Request(url , headers={'User-Agent': 'Mozilla/5.0'})
-
-webpage = urlopen(req).read()
-page_soup = soup(webpage, "html.parser")
-import re
-analyst = page_soup.find("div", class_ = "stock-metrics")
-res = re.findall(r'\{.*?\}',str(analyst))
-attri = dict() 
-for seg in range(0, 10):
-    seg1 = dict(map(lambda x: x.split(':'), res[seg][1:-1].replace("&quot;", "").split(',')))
-    seg1 = {x.strip() : y.strip() for x, y in seg1.items()}
-    attri[seg1['title']] = seg1['value']
-for i in range(10, 18):
-    s = res[i][1:-1].replace("&quot;", "").split(',')
-    s.remove(s[8])
-    s = dict(map(lambda x: x.split(':'), s ))
-    s = {x.strip() : y.strip() for x, y in s.items()}
-    attri[s['title']] = s['value']
-
-#####################################Web scrapping#####################################
-
-#Financial Statistics Display/ elements
-
-keys = []
-vals = []
-
-for i, j in attri.items(): #attri dict contains all the metrics 
-    keys.append(i)
-    vals.append(j)
-
-#Cards for financial statistics
-a1 = dbc.Card(dbc.CardBody([html.H5(str(keys[0]), className="card-title"),html.P(str(vals[0]))]))
-a2 = dbc.Card(dbc.CardBody([html.H5(str(keys[1]), className="card-title"),html.P(str(vals[1]))]))
-a3 = dbc.Card(dbc.CardBody([html.H5(str(keys[2]), className="card-title"),html.P(str(vals[2]))]))
-a4 = dbc.Card(dbc.CardBody([html.H5(str(keys[3]), className="card-title"),html.P(str(vals[3]))]))
-a5 = dbc.Card(dbc.CardBody([html.H5(str(keys[4]), className="card-title"),html.P(str(vals[4]))]))
-a6 = dbc.Card(dbc.CardBody([html.H5(str(keys[5]), className="card-title"),html.P(str(vals[5]))]))
-a7 = dbc.Card(dbc.CardBody([html.H5(str(keys[6]), className="card-title"),html.P(str(vals[6]))]))
-a8 = dbc.Card(dbc.CardBody([html.H5(str(keys[7]), className="card-title"),html.P(str(vals[7]))]))
-a9 = dbc.Card(dbc.CardBody([html.H5(str(keys[8]), className="card-title"),html.P(str(vals[8]))]))
-a10 = dbc.Card(dbc.CardBody([html.H5(str(keys[9]), className="card-title"),html.P(str(vals[9]))]))
-a11 = dbc.Card(dbc.CardBody([html.H5(str(keys[10]), className="card-title"),html.P(str(vals[10]))]))
-a12 = dbc.Card(dbc.CardBody([html.H5(str(keys[11]), className="card-title"),html.P(str(vals[11]))]))
-a13 = dbc.Card(dbc.CardBody([html.H5(str(keys[12]), className="card-title"),html.P(str(vals[12]))]))
-a14 = dbc.Card(dbc.CardBody([html.H5(str(keys[13]), className="card-title"),html.P(str(vals[13]))]))
+# Date Range picker HTML
+date_range_picker = html.Div([  dcc.DatePickerSingle(
+                                            id='my-date-picker-single',
+                                            min_date_allowed=date(2020, 1, 1),
+                                            max_date_allowed=date(2030, 1, 1),
+                                            initial_visible_month = date.today(),
+                                            date = pd.Timestamp(date.today()+ \
+                                                             pd.tseries.offsets.BusinessDay(n = -5)).date()
+                                            
+                                        ),
+                                        html.Div(id='output-container-date-picker-single')
+                              ])
 
 
-card1 = dbc.Row([dbc.Col(a1, width=4), dbc.Col(a2, width=4), dbc.Col(a3, width=4)])
-card2 = dbc.Row([dbc.Col(a4, width=4), dbc.Col(a5, width=4), dbc.Col(a6, width=4)])
-card3 = dbc.Row([dbc.Col(a7, width=4), dbc.Col(a8, width=4), dbc.Col(a9, width=4)])
-card4 = dbc.Row([dbc.Col(a10, width=4), dbc.Col(a11, width=4), dbc.Col(a12, width=4), dbc.Col(a13, width=4)])
 
-#Graph dash html layout
-graph = html.Div(
-        [
-            dcc.Dropdown(
-                id="Stock",
-                options=[{
-                    'label': i,
-                    'value': i,
-                } for i, j in mgr_dic.items()],
-                value='Infosys'),
-        ],
-        style={'width': '25%',
-               'display': 'inline-block'})
 
 #HMTL elements layout
-app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = dash.Dash()
 app.layout = html.Div([
     html.H2("Stock Prediction Dashboard"),
-    graph,
-    dcc.Graph(id='funnel-graph'),
-    html.H2("Financial Statistics"),
-    card1, card2, card3, card4 
-],
-)
+    date_range_picker,
+    html.Div(
+    [
+        dcc.Dropdown(
+            id="Manager",
+            options=[{'label':'INFY.BO', 'value':'INFY.BO'}],
+            value='INFY.BO'),
+    ],
+    style={'width': '25%',
+            'display': 'inline-block'}),
+    html.Table([
+        html.Tr([html.Td(id='day5'), html.Td(id='5'), html.Td(id='5a')]),
+        html.Tr([html.Td(id='day4'), html.Td(id='4'), html.Td(id='4a')]),
+        html.Tr([html.Td(id='day3'), html.Td(id='3'), html.Td(id='3a')]),
+        html.Tr([html.Td(id='day2'), html.Td(id='2'), html.Td(id='2a')]),
+        html.Tr([html.Td(id='day1'), html.Td(id='1'), html.Td(id='1a')])
+    ])
+])
 
 
+def prev_dates(last_date):
+    last_date = pd.Timestamp(last_date)
+    bd = pd.tseries.offsets.BusinessDay(n = -4)
+    dates = str((last_date+bd).date())
+    return dates
 
 
+def next_dates(last_date):
+    last_date = pd.Timestamp(last_date)
+    dates = []
+    for i in range(5):
+        bd = pd.tseries.offsets.BusinessDay(n = i+1)
+        dates.append(str((last_date+bd).date()))
+    return dates
+
+def act_dates(last_date):
+    last_date = pd.Timestamp(last_date)
+    bd = pd.tseries.offsets.BusinessDay(n = 5)
+    end_dates = str((last_date+bd).date())
+    return end_dates
+
+@app.callback(
+    [dash.dependencies.Output('5', 'children'),
+    dash.dependencies.Output('4', 'children'),
+    dash.dependencies.Output('3', 'children'),
+    dash.dependencies.Output('2', 'children'),
+    dash.dependencies.Output('1', 'children'),
+    dash.dependencies.Output('day5', 'children'),
+    dash.dependencies.Output('day4', 'children'),
+    dash.dependencies.Output('day3', 'children'),
+    dash.dependencies.Output('day2', 'children'),
+    dash.dependencies.Output('day1', 'children'),
+    dash.dependencies.Output('5a', 'children'),
+    dash.dependencies.Output('4a', 'children'),
+    dash.dependencies.Output('3a', 'children'),
+    dash.dependencies.Output('2a', 'children'),
+    dash.dependencies.Output('1a', 'children')],
+    [dash.dependencies.Input('my-date-picker-single', 'date')])
+def predicted_data(last_date):
+
+    prev_date = prev_dates(last_date)    
+    data_close = read_stock_data("INFY.BO", prev_date, last_date)
+    lstm_model = load_model()
+    data_close = data_close.reshape(1,5)
+    preprocessed_data = lstm_prediction(data_close, lstm_model)
+    df2 = pd.DataFrame(preprocessed_data, columns=['events'], index=next_dates(last_date))
+    end_date = act_dates(last_date)
+    data_close_act = read_stock_data("INFY.BO", last_date, end_date)
+    # fig = go.Scatter(x=df2.index, y=df2['events'])
+    return df2['events'].values[0],df2['events'].values[1],df2['events'].values[2], \
+           df2['events'].values[3], df2['events'].values[4], df2.index[0], df2.index[1], \
+           df2.index[2], df2.index[3], df2.index[4], data_close_act[0], \
+           data_close_act[1],data_close_act[2], \
+           data_close_act[3], data_close_act[4]
 
 
 @app.callback(
-    dash.dependencies.Output('funnel-graph', 'figure'),
-    [dash.dependencies.Input('Stock', 'value')])
-def update_graph(Stock):
-    df_plot = read_stock_data(Stock)
-    model = load_model()
-    preprocessed_data = process_data_for_prediction(df_plot, model)
-    df2 = pd.DataFrame(preprocessed_data[:,4], columns=['events'])
-    fig = go.Scatter(x=df2.index, y=df2['events'])
-    return {
-        'data': [fig],
-        'layout':
-            go.Layout(title='Stock Close Price')
-    }
-if __name__ == '__main__':
-<<<<<<< HEAD:app_basic_akki.py
-    model = load_model()
-    app.run_server(debug=True)
+    dash.dependencies.Output('output-container-date-picker-single', 'children'),
+    [dash.dependencies.Input('my-date-picker-single', 'date')])
+def update_output(date_value):
+    string_prefix = 'You have selected: '
+    if date_value is not None:
+        date_object = date.fromisoformat(date_value)
+        date_string = date_object.strftime('%B %d, %Y')
+        return string_prefix + date_string
 
-# %%
-=======
-    load_model()
-    app.run_server("0.0.0.0", 8080,debug=True)
->>>>>>> b9cdd72ba5f00a7cd85f6b34ec7a7f424b759b2c:app_basic.py
+if __name__ == '__main__':
+    app.run_server(debug=True)

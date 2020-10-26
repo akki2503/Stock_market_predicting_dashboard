@@ -83,10 +83,10 @@ def forecast(model, x, n_batch):
     
     return fore
 
-def forecast_lstm(x_test_lstm):
+def forecast_lstm(x_test_lstm,lstm_model):
     forecasts = list()
     for i in range(len(x_test_lstm)):
-        x= x_test_lstm[i,:]
+        x= x_test_lstm
         fore = forecast(lstm_model, x , 1)
         forecasts = np.append(forecasts, fore)
     return forecasts
